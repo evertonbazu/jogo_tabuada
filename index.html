@@ -61,6 +61,7 @@
             <h4 id="lives">Vidas: ❤️❤️❤️</h4>
             <h4 id="time">Tempo: 0:00</h4>
             <h4 id="highscore">Melhor Pontuação: </h4>
+            <button id="restartGame" class="btn btn-primary" style="display: none;">Jogar Novamente</button>
         </div>
     </div>
 
@@ -68,6 +69,7 @@
         let num1, num2, score = 0, lives = 3, time = 0, highscore = 0, playerName = "";
         let correctSound = new Audio('https://www.baixamais.net/resources/efeitos-sonoros/metais/Bell%2001.mp3');
         let incorrectSound = new Audio('https://www.baixamais.net/resources/efeitos-sonoros/explosoes/Explosion%2001.mp3');
+        let timer;
 
         function generateQuestion() {
             num1 = Math.floor(Math.random() * 10) + 1;
@@ -76,6 +78,9 @@
         }
 
         function startGame() {
+            score = 0;
+            lives = 3;
+            time = 0;
             playerName = document.getElementById('playerName').value;
             if(!playerName) {
                 alert('Por favor, digite seu nome.');
@@ -84,7 +89,14 @@
             document.getElementById('playerName').parentElement.style.display = 'none';
             document.getElementById('question').style.display = 'block';
             document.getElementById('answer').parentElement.style.display = 'flex';
+            document.getElementById('restartGame').style.display = 'none';
             generateQuestion();
+            timer = setInterval(function() {
+                time++;
+                let minutes = Math.floor(time / 60);
+                let seconds = time % 60;
+                document.getElementById('time').innerText = 'Tempo: ' + minutes + ':' + (seconds < 10 ? '0' : '') + seconds;
+            }, 1000);
         }
 
         function checkAnswer() {
@@ -104,17 +116,19 @@
                     document.getElementById('result').innerText = 'Fim de jogo! Sua pontuação final foi ' + score;
                     document.getElementById('submit').disabled = true;
                     document.getElementById('answer').disabled = true;
+                    document.getElementById('restartGame').style.display = 'block';
                     clearInterval(timer);
                     if(score > highscore) {
                         highscore = score;
                         localStorage.setItem('highscore', highscore);
                         localStorage.setItem('playerName', playerName);
-                        document.getElementById('highscore').innerText = 'Melhor Pontuação: ' + playerName + ' com ' + highscore;
+                        document.getElementById('highscore').innerText = 'Melhor Pontuação: ' + playerName + ' - ' + highscore;
                     }
                 } else {
                     generateQuestion();
                 }
             }
+            document.getElementById('score');
             document.getElementById('score').innerText = 'Pontuação: ' + score;
             document.getElementById('lives').innerText = 'Vidas: ' + '❤️'.repeat(lives);
             document.getElementById('answer').value = '';
@@ -134,12 +148,26 @@
             }
         });
 
-        const timer = setInterval(function() {
-            time++;
-            let minutes = Math.floor(time / 60);
-            let seconds = time % 60;
-            document.getElementById('time').innerText = 'Tempo: ' + minutes + ':' + (seconds < 10 ? '0' : '') + seconds;
-        }, 1000);
+        document.getElementById('restartGame').onclick = function() {
+            restartGame();
+        };
+
+        function restartGame() {
+            document.getElementById('playerName').parentElement.style.display = 'flex';
+            document.getElementById('question').style.display = 'none';
+            document.getElementById('answer').parentElement.style.display = 'none';
+            document.getElementById('restartGame').style.display = 'none';
+            document.getElementById('submit').disabled = false;
+            document.getElementById('answer').disabled = false;
+            document.getElementById('score').innerText = 'Pontuação: 0';
+            document.getElementById('lives').innerText = 'Vidas: ❤️❤️❤️';
+            document.getElementById('time').innerText = 'Tempo: 0:00';
+            document.getElementById('result').innerText = '';
+            score = 0;
+            lives = 3;
+            time = 0;
+            clearInterval(timer);
+        }
 
         highscore = localStorage.getItem('highscore') || 0;
         playerName = localStorage.getItem('playerName') || "";
